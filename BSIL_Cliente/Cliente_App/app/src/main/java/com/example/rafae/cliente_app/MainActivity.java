@@ -6,6 +6,11 @@ import android.os.Bundle;
 import android.widget.*;
 import android.view.View;
 
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.PrintStream;
+import java.net.Socket;
+
 public class MainActivity extends AppCompatActivity {
     private EditText edtText;
     private Button button;
@@ -22,13 +27,31 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String stringFromServer = null;
+                senha = edtText.getText().toString();
+                try {
+                    Socket cliente = new Socket("127.0.0.1", 12345);
+                    System.out.println("O cliente se conectou ao servidor!");
 
-            senha = edtText.getText().toString();
+                    PrintStream saida = new PrintStream(cliente.getOutputStream());
+
+                    saida.println(senha);
+
+                    InputStream in = cliente.getInputStream();
+                    ObjectInputStream oin = new ObjectInputStream(in);
+                    stringFromServer = (String) oin.readObject();
+
+                    saida.close();
+                    cliente.close();
+
+                }catch(Exception ex){
+                    System.out.println("Erro: "+ex.getMessage());
+                }
 
                 //Mandar requisição da senha para o servidor aqui!
 
                 AlertDialog.Builder dig = new AlertDialog.Builder(MainActivity.this);
-                dig.setMessage("Aqui o que retornar do servidor!!");
+                dig.setMessage("Posição na fila: " + stringFromServer);
             }
         });
     }
