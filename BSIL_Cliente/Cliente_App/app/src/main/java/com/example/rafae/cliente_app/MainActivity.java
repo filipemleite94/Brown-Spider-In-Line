@@ -14,6 +14,7 @@ import java.net.Socket;
 public class MainActivity extends AppCompatActivity {
     private TextView password;
     private EditText portField;
+    private EditText ipField;
     private Button checkPosButton;
     private Button askForPasswordButton;
     private Integer senha;
@@ -30,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
         askForPasswordButton  = (Button) findViewById(R.id.askForPassword);
         portField = (EditText) findViewById(R.id.portNumber);
         portField.setText("12345");
+        ipField = (EditText) findViewById(R.id.ipServer);
+        ipField.setText("192.168.0.165");
         cliente = new pontSocket();
     }
 
@@ -62,11 +65,13 @@ public class MainActivity extends AppCompatActivity {
             printar("Port inválido |" + auxString + "|");
             return;
         }
+
+        ipAddress = ipField.getText().toString();
         if(cliente.socket == null){
             try {
                 printar("Iniciar");
                 //ipAddress = "127.0.0.1";
-                ipAddress = "192.168.0.165";
+                //ipAddress = "192.168.0.165";
                 new initClient(ipAddress, port, password, cliente, MainActivity.this).execute();
                 printar("thread iniciada " + port);
             }catch(Exception e){
