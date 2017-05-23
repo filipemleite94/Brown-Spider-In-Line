@@ -6,9 +6,13 @@ import android.os.NetworkOnMainThreadException;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -20,6 +24,8 @@ public class initClient extends AsyncTask<Void, Void, Void> {
     String response = "";
     TextView textResponse;
     Socket socket;
+    BufferedReader in;
+    PrintWriter out;
     pontSocket pSocket;
     Context contexto;
 
@@ -36,20 +42,12 @@ public class initClient extends AsyncTask<Void, Void, Void> {
         printar("Vai começar");
 
         try {
-            if(InetAddress.getByName(dstAddress).isReachable(9000)){
+            if(InetAddress.getByName(dstAddress).isReachable(5000)){
                 socket = new Socket(dstAddress, dstPort);
                 printar("Socket criado");
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
-                byte[] buffer = new byte[1024];
-
-                int bytesRead;
-                InputStream inputStream = socket.getInputStream();
-
-
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    byteArrayOutputStream.write(buffer, 0, bytesRead);
-                    response += byteArrayOutputStream.toString("UTF-8");
-                }
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+                response = in.readLine();
             }else {
                 response+= "O endereço: " + dstAddress + " não pode ser acessado";
             }
@@ -76,10 +74,16 @@ public class initClient extends AsyncTask<Void, Void, Void> {
         if(response.matches("^-?\\d+$")) {
             textResponse.setText(response);
             pSocket.socket = socket;
+            pSocket.in = in;
+            pSocket.out = out;
             printar("A conexão foi efetuada com sucesso");
             Toast.makeText(contexto, "A conexão foi efetuada com sucesso", Toast.LENGTH_SHORT).show();
             super.onPostExecute(result);
         }else{
+            pSocket.socket = socket;
+            pSocket.in = in;
+            pSocket.out = out;
+            pSocket.execute();
             printar("O envio: " + response + " não é um número");
             Toast.makeText(contexto, "O envio: " + response + " não é um número", Toast.LENGTH_SHORT).show();
         }

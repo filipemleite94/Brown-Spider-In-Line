@@ -18,7 +18,6 @@ public class MainActivity extends AppCompatActivity {
     private Button askForPasswordButton;
     private Integer senha;
     private pontSocket cliente;
-    private PrintStream saida;
     private ObjectInputStream oin;
 
     @Override
@@ -31,32 +30,24 @@ public class MainActivity extends AppCompatActivity {
         askForPasswordButton  = (Button) findViewById(R.id.askForPassword);
         portField = (EditText) findViewById(R.id.portNumber);
         portField.setText("12345");
-        cliente = null;
+        cliente = new pontSocket();
     }
 
     public void checkPos(View v){
         //Teste
         //Toast.makeText(MainActivity.this, "Created a separate function for handling button click and added this function in button xml", Toast.LENGTH_SHORT).show();
 
-        if(cliente == null){
+        if(cliente.socket == null){
             printar("Você deve pedir uma senha primeiro");
             return;
         }
-
-        String stringFromServer = null;
-        senha = Integer.getInteger(password.getText().toString());
-
-        saida.println(senha);
-
-        try {
-            stringFromServer = (String) oin.readObject();
-        }catch(Exception E){
-            printar("Erro no recebimento do dado");
+        int aux;
+        aux = Integer.parseInt(password.getText().toString());
+        if (aux == 0){
+            printar("Peça uma senha primeiro");
             return;
         }
-
-        AlertDialog.Builder dig = new AlertDialog.Builder(MainActivity.this);
-        dig.setMessage("Posição na fila: " + stringFromServer);
+        new askPosition(aux, cliente, MainActivity.this);
     }
 
     public void askForPassword(View v){
@@ -64,9 +55,6 @@ public class MainActivity extends AppCompatActivity {
         String ipAddress;
         String auxString;
         int port = 0;
-        if(cliente == null){
-            cliente = new pontSocket();
-        }
         printar("Iniciar");
         auxString = portField.getText().toString();
         port = Integer.parseInt(auxString);
@@ -92,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 if(cliente.socket.isConnected()) {
                     cliente.socket.close();
                 }
-                cliente = null;
+                cliente.socket = null;
                 askForPassword(v);
             }catch(Exception e){
                 printar("Não foi possível encerrar a senha passada, tente de novo ");
