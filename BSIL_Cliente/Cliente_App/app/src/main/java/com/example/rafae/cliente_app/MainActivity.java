@@ -13,10 +13,11 @@ import java.net.Socket;
 
 public class MainActivity extends AppCompatActivity {
     private TextView password;
+    private EditText portField;
     private Button checkPosButton;
     private Button askForPasswordButton;
     private Integer senha;
-    private Socket cliente;
+    private pontSocket cliente;
     private PrintStream saida;
     private ObjectInputStream oin;
 
@@ -28,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
         password = (TextView) findViewById(R.id.password);
         checkPosButton = (Button) findViewById(R.id.checkPos);
         askForPasswordButton  = (Button) findViewById(R.id.askForPassword);
+        portField = (EditText) findViewById(R.id.portNumber);
+        portField.setText("12345");
         cliente = null;
     }
 
@@ -57,42 +60,48 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void askForPassword(View v){
-        String aux;
+        initClient aux;
+        String ipAddress;
+        String auxString;
+        int port = 0;
         if(cliente == null){
+            cliente = new pontSocket();
+        }
+        printar("Iniciar");
+        auxString = portField.getText().toString();
+        port = Integer.parseInt(auxString);
+        if(port<1000 || port>99999){
+            printar("Port inválido |" + auxString + "|");
+            return;
+        }
+        if(cliente.socket == null){
             try {
-                cliente = new Socket("127.0.0.1", 12345);
-                printar("O cliente se conectou com o servidor");
-                saida = new PrintStream(cliente.getOutputStream());
-                oin = new ObjectInputStream(cliente.getInputStream());
+                printar("Iniciar");
+                //ipAddress = "127.0.0.1";
+                ipAddress = "192.168.0.165";
+                new initClient(ipAddress, port, password, cliente, MainActivity.this).execute();
+                printar("thread iniciada " + port);
             }catch(Exception e){
-                printar("Não foi possível estabelecer conexão com o servidor");
+                printar("Não foi possível estabelecer conexão com o servidor, erro: "  + e.getMessage()+ "|" + e.getLocalizedMessage());
+                e.printStackTrace();
                 return;
             }
-            try {
-                aux = oin.readObject().toString();
-                while (!aux.matches("^-?\\d+$")) {
-                    aux = oin.readObject().toString();
-                }
-            }catch(Exception E){
-                printar("Erro ao ler o envio");
-                return;
-            }
-            password.setText(aux);
+
         }else{
             try{
-                if(cliente.isConnected()) {
-                    cliente.close();
+                if(cliente.socket.isConnected()) {
+                    cliente.socket.close();
                 }
                 cliente = null;
                 askForPassword(v);
             }catch(Exception e){
-                printar("Não foi possível encerrar a senha passada, tente de novo");
+                printar("Não foi possível encerrar a senha passada, tente de novo ");
                 return;
             }
         }
     }
 
     private void printar(String s){
-        Toast.makeText(MainActivity.this, s, Toast.LENGTH_LONG).show();
+        Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
     }
 }

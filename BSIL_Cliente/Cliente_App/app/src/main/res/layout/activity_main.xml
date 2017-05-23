@@ -67,4 +67,19 @@
         tools:layout_editor_absoluteY="0dp"
         tools:layout_editor_absoluteX="20dp" />
 
+    <EditText
+        android:id="@+id/portNumber"
+        android:layout_width="139dp"
+        android:layout_height="46dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="16dp"
+        android:ems="10"
+        android:inputType="number"
+        android:singleLine="true"
+        android:text="Port"
+        app:layout_constraintHorizontal_bias="0.483"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </android.support.constraint.ConstraintLayout>
