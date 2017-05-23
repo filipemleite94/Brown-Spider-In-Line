@@ -94,6 +94,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void giveUpPass(View v){
+        if(cliente.socket == null){
+            return;
+        }
+        cliente.execute();
+        password.setText("0");
+    }
+
     private void printar(String s){
         Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
     }
